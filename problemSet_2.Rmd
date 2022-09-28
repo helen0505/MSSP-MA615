@@ -1,0 +1,137 @@
+---
+title: "problemSet_2"
+author: "Helen Song"
+date: "2022-09-25"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Fuel Economy
+```{r}
+vehicles <- read.csv('vehicles.csv',header = T)
+```
+
+## 1
+```{r}
+m84 <- vehicles[vehicles$year == "1984",c("year", "make", "highwayE")]
+m23 <- vehicles[vehicles$year == "2023",c("year", "make", "highwayE")]
+
+library(ggplot2)
+ggplot(data = m84) +
+geom_point(mapping = aes(x = highwayE, y = make),size = 3) + 
+labs(title = "Highway electricity consumption in 1984")
+
+ggplot(data = m23) +
+geom_point(mapping = aes(x = highwayE, y = make),size = 3) +
+labs(title = "Highway electricity consumption in 2023")
+
+m84[m84$highwayE != 0,]
+m23[m23$highwayE != 0,]
+# In 1984, all makes have zero highway electricity consumption in kw-hrs/100 miles.
+# However, in 2023, there are 9 makes that have made progress in the span 
+# from 1984 to 2023: BMW, Genesis, MINI, McLaren Automotive, Cadillac, Chevrolet, 
+# Polestar, Toyota, and Volvo.
+```
+
+## 2
+```{r}
+m23[which.max(m23$highwayE),]
+# McLaren Automotive made the largest progress by having highway electricity 
+# consumption of 82 kw-hrs/100 miles in 2023. 
+```
+
+
+# NASDAQ Composite
+```{r}
+Nd <- read.csv('IXIC21-22.csv',header = T)
+```
+
+```{r}
+library(tidyverse)
+library(tidyquant)
+```
+
+```{r}
+Nd$Date <- as.Date(Nd$Date, "%Y-%m-%d")
+Nd %>%
+    ggplot(aes(x = Date, y = Adj.Close)) +
+    geom_candlestick(aes(open = Open, high = High, low = Low, close = Close)) +
+    labs(title = "NASDAQ Candlestick Chart", y = "Closing Price", x = "Date") + 
+    theme_tq()
+# This plot shows that the highest closing price occurs between October 2021 
+# and January 2022, and the lowest occurs between April 2022 and July 2022.
+# Overall, the closing price is decreasing in the time span from September
+# 2021 to September 2022.
+```
+
+
+# Rural Capacity Index
+```{r}
+ruralCapacityData <- read.csv('ruralCapacityData.csv',header = T)
+ruralCapacityData <- ruralCapacityData[-1,]
+```
+
+## 1
+```{r}
+ggplot(data = ruralCapacityData) +
+geom_point(mapping = aes(x = per_fam_below_pov, y = cap_index, color = County), size=3) +
+labs(title = "Rural capacity index vs. Percentage of families below the poverty level")
+# It seems that there is no pattern between these two variables.
+```
+
+## 2
+```{r}
+ggplot(data = ruralCapacityData) +
+geom_point(mapping = aes(x = house_broadband, y = per_over_25_with_bach, 
+                         color = cap_index), size=3) + 
+  labs(title = "Percent of population 25 and over with a bachelors degree vs. 
+       Total households with broadband connection") +
+  xlab("Total households with broadband connection") +
+  ylab("Percent of population 25 and over with a bachelors degree")
+# Most households have lower than 20 percent of population 25 and over with
+# a bachlors degree.
+```
+
+## 3
+```{r}
+Larger16k <- ruralCapacityData[ruralCapacityData$pop_total > 55000,]
+ggplot(data = Larger16k) +
+geom_point(mapping = aes(x = pop_total, y = cap_index, color = County), size=3) + 
+labs(title = "Communities with total population > 55000") +
+  xlab("Total population") +
+  ylab("Rural capacity index")
+# For communities with total population larger than 55000, most of them have rural
+# capacity index below 90. 
+```
+
+```{r}
+rm(Larger16k)
+Btw16k <- ruralCapacityData[ruralCapacityData$pop_total < 55000 
+                            & ruralCapacityData$pop_total > 16000,]
+ggplot(data = Btw16k) +
+geom_point(mapping = aes(x = pop_total, y = cap_index, color = County), size=3) + 
+  labs(title = "Communities with 16000 < total population < 55000") +
+  xlab("Total population") +
+  ylab("Rural capacity index")
+# For communities with total population between 16000 and 55000, they have
+# larger range of rural capacity than communities with total population
+# larger than 55000.
+```
+
+```{r}
+rm(Btw16k)
+Less16k <- ruralCapacityData[ruralCapacityData$pop_total < 16000,]
+ggplot(data = Less16k) +
+geom_point(mapping = aes(x = pop_total, y = cap_index, color = County), size=3) + 
+  labs(title = "Communities with total population < 16000") +
+  xlab("Total population") +
+  ylab("Rural capacity index")
+
+# In this group, the county has the largest population also have the largest 
+# rural capacity index.
+```
