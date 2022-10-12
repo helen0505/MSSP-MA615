@@ -1,0 +1,80 @@
+---
+title: "problemSet_4"
+author: "Helen Song"
+date: "2022-10-05"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# 12.2.1
+## Problem 2
+### (1) Extract the number of TB cases per country per year.
+```{r}
+table2
+tb2_cases <- filter(table2, type == "cases") %>% 
+  rename(cases = count) %>% 
+  arrange(country, year)
+tb2_cases
+```
+
+### (2) Extract the matching population per country per year.
+```{r}
+tb2_pop <- filter(table2, type == "population") %>% 
+  rename(population = count) %>% 
+  arrange(country, year)
+tb2_pop
+```
+
+### (3) Divide cases by population, and multiply by 10000.
+```{r}
+tb2_cases_per_cap <- tibble(
+  year = tb2_cases$year,
+  country = tb2_cases$country,
+  cases = tb2_cases$cases,
+  population = tb2_pop$population
+) %>%
+  mutate(cases_per_cap = (cases/population) * 10000) %>% 
+  select(year, country, cases_per_cap)
+
+tb2_cases_per_cap <- tb2_cases_per_cap %>%
+  mutate(type = "cases_per_cap") %>%
+  rename(count = cases_per_cap)
+tb2_cases_per_cap
+```
+
+### (4) Store back in the appropriate place.
+```{r}
+bind_rows(table2, tb2_cases_per_cap) %>%
+  arrange(country, year, type, count)
+
+tb2_cases_and_pop_rate <- bind_rows(table2, tb2_cases_per_cap) %>%
+  arrange(country, year, type, count)
+
+tb2_cases_and_pop_rate
+```
+
+## Table 4
+```{r}
+table4c < - tibble(
+  country = table4a$country,
+  '1999' = table4a
+)
+```
+
+# 12.3.1
+## Problem 1
+```{r}
+stocks <- tibble(
+  year   = c(2015, 2015, 2016, 2016),
+  half  = c(   1,    2,     1,    2),
+  return = c(1.88, 0.59, 0.92, 0.17)
+)
+stocks %>% 
+  pivot_wider(names_from = year, values_from = return) %>% 
+  pivot_longer(`2015`:`2016`, names_to = "year", values_to = "return")
+```
+
+
